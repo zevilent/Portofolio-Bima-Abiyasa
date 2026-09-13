@@ -11,6 +11,7 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { sourceHash } from './check-price-list.ts';
 import { websitePackages, webAppPackages, websiteInclusions, webAppIntro } from '../src/config/services.ts';
 import { addons, maintenancePlans } from '../src/config/addons.ts';
 import { priceNote, GUARANTEE_DAYS } from '../src/config/terms.ts';
@@ -158,6 +159,14 @@ async function main(): Promise<void> {
   });
   await browser.close();
   await writeFile(OUT, pdf);
+
+  // The stamp records WHICH pricing data produced this file, so the CI check can tell
+  // "stale because prices changed" from "different Chromium version" (banner sizes vary).
+  await writeFile(
+    join(process.cwd(), 'public', 'price-list-bima-abiyasa-2026.source.json'),
+    `${JSON.stringify({ hash: sourceHash(), generatedAt: new Date().toISOString(), year: YEAR }, null, 2)}\n`,
+  );
+
   process.stdout.write(`wrote ${OUT} (${pdf.length.toLocaleString('en-US')} bytes)\n`);
 
   if (!existsSync(OUT)) {
