@@ -33,6 +33,8 @@
     "check": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "npm run check && npm run test && npm run build"
+    "verify": "npm run check && npm run test && npm run build",
+    "capture": "node --experimental-strip-types scripts/capture.ts",
+    "budget": "node --experimental-strip-types scripts/check-budget.ts"
   }
 }

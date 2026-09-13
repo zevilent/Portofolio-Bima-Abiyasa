@@ -1,0 +1,343 @@
+---
+/**
+ * WorkStack (brief §6/04) — large project cards that stack as you scroll on desktop and
+ * become a simple reveal list on mobile / reduced motion.
+ *
+ * Posters come from scripts/capture.ts when they exist; a project without a capture falls
+ * back to a typographic plate (number, name, category, stack) so the card still looks
+ * deliberate instead of broken. Concept work keeps a visible "Konsep" badge everywhere.
+ */
+import { worksSorted, worksCopy } from '@/config/works';
+import { withBase } from '@/lib/url';
+
+const posterModules = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/karya/*/desktop.webp',
+  { eager: true },
+);
+const mobileModules = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/karya/*/mobile.webp',
+  { eager: true },
+);
+
+function posterFor(slug: string, size: 'desktop' | 'mobile') {
+  const table = size === 'desktop' ? posterModules : mobileModules;
+  return table[`../assets/karya/${slug}/${size}.webp`]?.default ?? null;
+}
+
+const cards = worksSorted.map((work) => ({
+  ...work,
+  desktop: posterFor(work.slug, 'desktop'),
+  mobile: posterFor(work.slug, 'mobile'),
+}));
+---
+<section class="works section" id="karya" aria-labelledby="karya-title">
+  <header class="works__head container-page">
+    <p class="mono-label works__eyebrow">{worksCopy.eyebrow}</p>
+    <div class="works__intro">
+      <h2 id="karya-title">
+        {worksCopy.heading} <span class="accent-serif">{worksCopy.headingAccent}</span>.
+      </h2>
+      <p class="works__lead">{worksCopy.intro}</p>
+    </div>
+  </header>
+
+  <ol class="works__list" data-work-stack>
+    {cards.map((work, index) => (
+      <li class="work" data-work-card style={`--index:${index}`}>
+        <article class="work__card">
+          <a class="work__link" href={withBase(`/karya/${work.slug}`)} data-transition-name={`karya-${work.slug}`} aria-label={`${work.name} — studi kasus`}>
+            <div class="work__media">
+              {work.desktop ? (
+                <picture>
+                  <source
+                    media="(max-width: 767px)"
+                    srcset={work.mobile?.src ?? work.desktop.src}
+                    type="image/webp"
+                  />
+                  <img
+                    src={work.desktop.src}
+                    width={work.desktop.width}
+                    height={work.desktop.height}
+                    alt={`Tampilan ${work.name}`}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                </picture>
+              ) : (
+                <div class="work__plate" aria-hidden="true">
+                  <span class="mono-micro">{String(index + 1).padStart(2, '0')}</span>
+                  <span class="work__plate-name">{work.name}</span>
+                  <span class="mono-micro">{work.category}</span>
+                </div>
+              )}
+            </div>
+
+            <div class="work__body">
+              <div class="work__meta">
+                <span class="mono-micro">{String(index + 1).padStart(2, '0')}</span>
+                <span class="mono-micro">{work.category}</span>
+                <span class="mono-micro work__status">{worksCopy.statusLabels[work.status]}</span>
+                {work.year && <span class="mono-micro">{work.year}</span>}
+                {work.concept && <span class="mono-micro work__concept">{worksCopy.conceptBadge}</span>}
+              </div>
+
+              <h3 class="work__title">{work.name}</h3>
+              <p class="work__desc">{work.description}</p>
+
+              {work.stack.length > 0 && (
+                <ul class="work__stack" aria-label="Teknologi">
+                  {work.stack.slice(0, 4).map((item) => (
+                    <li class="mono-micro">{item}</li>
+                  ))}
+                </ul>
+              )}
+
+              <div class="work__actions">
+                <span class="work__cta mono-label">
+                  {worksCopy.caseStudyLink} <span aria-hidden="true">→</span>
+                </span>
+                {work.url && (
+                  <span class="work__live mono-micro">
+                    {worksCopy.liveLink} <span aria-hidden="true">↗</span>
+                    <span class="visually-hidden">(terbuka di tab baru)</span>
+                  </span>
+                )}
+              </div>
+            </div>
+          </a>
+
+          {work.url && (
+            <a
+              class="work__external mono-micro"
+              href={work.url}
+              rel="noopener noreferrer"
+              target="_blank"
+              data-source="works"
+            >
+              {worksCopy.liveLink} ↗
+            </a>
+          )}
+        </article>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .works {
+    border-top: var(--border-hairline);
+  }
+
+  .works__head {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .works__eyebrow {
+    color: var(--color-gold);
+  }
+
+  .works__intro h2 {
+    font-size: var(--fs-display-l);
+    line-height: var(--lh-display-l);
+    letter-spacing: var(--track-display-l);
+  }
+
+  .works__lead {
+    margin-top: var(--space-5);
+    color: var(--color-text-2);
+  }
+
+  .works__list {
+    margin: var(--space-12) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work {
+    /* Each card sticks a little lower than the last, so the stack reads as a deck. */
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-6) + var(--index) * 18px);
+  }
+
+  .work__card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 0;
+    border: var(--border-hairline);
+    border-radius: var(--r-lg);
+    background: var(--color-surface-1);
+    overflow: hidden;
+    box-shadow: var(--shadow-stack);
+  }
+
+  .work__link {
+    display: contents;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .work__media {
+    position: relative;
+    min-height: 380px;
+    background: var(--color-surface-2);
+    border-inline-end: var(--border-hairline);
+  }
+
+  .work__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .work__plate {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--space-4);
+    height: 100%;
+    padding: var(--space-9);
+    text-align: center;
+  }
+
+  .work__plate-name {
+    font-size: var(--fs-h3);
+    letter-spacing: var(--track-heading);
+  }
+
+  .work__body {
+    display: grid;
+    align-content: center;
+    gap: var(--space-5);
+    padding: clamp(var(--space-7), 4vw, var(--space-11));
+  }
+
+  .work__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    align-items: center;
+  }
+
+  .work__status {
+    color: var(--color-text-muted-hi);
+  }
+
+  .work__concept {
+    padding-inline: var(--space-2);
+    border: var(--border-gold);
+    border-radius: var(--r-xs);
+    color: var(--color-gold);
+  }
+
+  .work__title {
+    font-size: var(--fs-display-m);
+    line-height: var(--lh-display-m);
+    letter-spacing: var(--track-display-m);
+  }
+
+  .work__desc {
+    color: var(--color-text-2);
+    max-width: 42ch;
+  }
+
+  .work__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work__stack li {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-hairline);
+    border-radius: var(--r-pill);
+    color: var(--color-text-muted-hi);
+  }
+
+  .work__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .work__cta {
+    color: var(--color-text);
+  }
+
+  .work__live {
+    color: var(--color-gold);
+  }
+
+  /* The full-card overlay link for the live site, kept separate so the card itself
+     still navigates to the case study (brief §6/04). */
+  .work__external {
+    position: absolute;
+    right: var(--space-6);
+    bottom: var(--space-6);
+    z-index: 2;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-hairline);
+    border-radius: var(--r-sm);
+    background: rgb(10 10 11 / 80%);
+    color: var(--color-text-2);
+    text-decoration: none;
+    transition:
+      color var(--dur-2) var(--ease-out-quint),
+      border-color var(--dur-2) var(--ease-out-quint);
+  }
+
+  .work__external:hover {
+    color: var(--color-text);
+    border-color: var(--color-line-gold);
+  }
+
+  .work__card::after {
+    /* Gold spotlight (shared with the bento cards in M4). */
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--glow-gold);
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out-quint);
+  }
+
+  .work__card:hover::after,
+  .work__card:focus-within::after {
+    opacity: 1;
+  }
+
+  @media (max-width: 1023px) {
+    .works__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .work {
+      position: static;
+    }
+
+    .work__card {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .work__media {
+      min-height: 240px;
+      aspect-ratio: 4 / 3;
+      border-inline-end: none;
+      border-bottom: var(--border-hairline);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .work {
+      position: static;
+    }
+  }
+</style>

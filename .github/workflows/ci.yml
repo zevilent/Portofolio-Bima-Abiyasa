@@ -39,6 +39,9 @@ jobs:
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
 
+      - name: Budget check (initial JS/CSS/HTML)
+        run: npm run budget
+
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:

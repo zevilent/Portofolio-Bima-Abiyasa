@@ -6,20 +6,18 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import CapabilityMarquee from '@/components/CapabilityMarquee.astro';
+import WorkStack from '@/components/WorkStack.astro';
 import { site } from '@/config/site';
 ---
 <BaseLayout>
   <Hero />
   <CapabilityMarquee />
+  <WorkStack />
 
-  <section class="container-page placeholder" id="karya">
-    <p class="mono-label">M2 / SELANJUTNYA</p>
-    <h2>Karya, layanan, proses, harga, dan FAQ menyusul di milestone berikutnya.</h2>
-    <p>
-      Halaman ini sudah memakai fondasi final: token, tipografi, jarak, gerak, dan
-      komponen header/hero yang akan dipakai seluruh situs.
-    </p>
-    <p class="mono-micro">{site.liveUrl}</p>
+  <section class="container-page placeholder" id="layanan">
+    <p class="mono-label">M3 / SELANJUTNYA</p>
+    <h2>Layanan, proses, harga, dan FAQ menyusul di milestone berikutnya.</h2>
+    <p>{site.liveUrl}</p>
   </section>
 
   <script>

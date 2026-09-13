@@ -44,10 +44,10 @@
 
 | # | Slug | Yang dibutuhkan | Status |
 |---|---|---|---|
-| D1 | `hikari-tutor` | **Tahun** proyek, **peran** Anda di proyek ini, **stack** yang benar-benar dipakai (saya draft dari situs live, Anda koreksi), hasil nyata (opsional) | `OPEN` |
-| D2 | `phoenix-signal` | idem | `OPEN` |
-| D3 | `niaga-one` | idem | `OPEN` |
-| D4 | `teras-kinara-residence` | **URL GitHub Pages** untuk demo konsep (sampai ada, label `Segera`), tahun, peran, stack | `OPEN` |
+| D1 | `hikari-tutor` | **Tahun**, **peran**, dan koreksi stack draft (Vite, Supabase, PWA/service worker, Meta Pixel, routing hash). Situs live menyebut produknya sebagai **Nihongo Mastery** — apakah nama proyek tetap Hikari Tutor? | `OPEN` |
+| D2 | `phoenix-signal` | **Tahun**, **peran**, koreksi stack draft (Tailwind, halaman server-rendered, Meta Pixel), dan apakah boleh menyebut broker partner (Exness/HFM) di studi kasus | `OPEN` |
+| D3 | `niaga-one` | **Tahun**, **peran**, nama stack sebenarnya (saya hanya bisa memastikan bundel ringan `app.js`/`ui.js` + render di browser), dan apakah sudah dipakai klien nyata | `OPEN` |
+| D4 | `teras-kinara-residence` | ~~URL demo~~ **SELESAI (M3)**: https://zevilent.github.io/teras-kinara-landing/ — yang masih perlu: tahun pembuatan, peran, stack | `OPEN` |
 | D5 | Semua | Apakah ada **klien/perusahaan** yang boleh disebut namanya? Kalau tidak, saya tulis tanpa menyebut klien | `OPEN` |
 | D6 | Semua | Apakah ada **hasil nyata** yang boleh dipublikasikan (angka traffic, konversi, dsb)? Kalau tidak, bagian `Hasil` dihapus dari halaman | `OPEN` |
 | D7 | Semua | Untuk section "Dibangun dengan AI agent": **apa yang Anda koreksi/perbaiki sendiri** dari hasil agent di tiap proyek | `OPEN` |

@@ -92,11 +92,19 @@ describe('honesty guards', () => {
     }
   });
 
-  it('keeps Teras Kinara as a concept with no live link', () => {
+  it('keeps Teras Kinara labelled as a concept, link or no link', () => {
+    // The demo URL arrived in M3, but the project is still concept work: the flag is what
+    // drives the "Konsep" badge, so a live URL can never make it read as client work.
     const concept = works.find((work) => work.slug === 'teras-kinara-residence');
-    expect(concept?.status).toBe('coming-soon');
-    expect(concept?.url).toBeNull();
-    expect(concept?.urlLabel).toBe('Segera');
+    expect(concept?.concept).toBe(true);
+    expect(concept?.category).toContain('Konsep');
+    expect(concept?.url).toMatch(/^https:\/\//);
+  });
+
+  it('flags exactly one project as concept work', () => {
+    expect(works.filter((work) => work.concept).map((work) => work.slug)).toEqual([
+      'teras-kinara-residence',
+    ]);
   });
 
   it('ships no stats row because no real numbers were provided (proposal P3)', () => {

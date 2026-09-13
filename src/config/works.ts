@@ -14,6 +14,8 @@ export type Work = {
   status: WorkStatus;
   url: string | null;
   urlLabel?: string;
+  /** Concept work stays honest: it ships with a visible badge wherever it appears. */
+  concept?: boolean;
   description: string;
   /** null → the year label is hidden (proposal P4). */
   year: number | null;
@@ -61,9 +63,9 @@ export const works: Work[] = [
     slug: 'teras-kinara-residence',
     name: 'Teras Kinara Residence',
     category: 'Website · Konsep',
-    status: 'coming-soon',
-    url: null,
-    urlLabel: 'Segera',
+    status: 'live',
+    url: 'https://zevilent.github.io/teras-kinara-landing/',
+    concept: true,
     description: 'Landing page konsep untuk proyek residensial fiktif.',
     year: null,
     stack: [],

@@ -1,0 +1,484 @@
+---
+/**
+ * Case study page (brief §5.12).
+ *
+ * Only sections with real content are rendered: a project without verified results shows
+ * no "Hasil" section at all, and a draft entry says so in the page itself. The hero image
+ * carries the same view-transition-name as its card, so clicking a card morphs it here.
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site } from '@/config/site';
+import { worksSorted } from '@/config/works';
+import { GUARANTEE_DAYS } from '@/config/terms';
+import { withBase } from '@/lib/url';
+import { buildCaseStudyMessage, whatsappUrl } from '@/lib/whatsapp';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('karya');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+type Props = { entry: CollectionEntry<'karya'> };
+const { entry } = Astro.props;
+const data = entry.data;
+
+const posterModules = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/karya/*/desktop.webp',
+  { eager: true },
+);
+const poster = posterModules[`../../assets/karya/${entry.id}/desktop.webp`]?.default ?? null;
+
+const videoModules = import.meta.glob('../../assets/karya/*/preview.mp4', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+const video = (videoModules[`../../assets/karya/${entry.id}/preview.mp4`] as string | undefined) ?? null;
+
+const index = worksSorted.findIndex((work) => work.slug === entry.id);
+const nextWork = worksSorted[(index + 1) % worksSorted.length]!;
+
+const waLink = whatsappUrl(site.contact.whatsapp, buildCaseStudyMessage(data.name));
+const sections = [
+  { id: 'ringkasan', label: 'Ringkasan' },
+  ...(data.problem ? [{ id: 'masalah', label: 'Masalahnya' }] : []),
+  ...(data.solution ? [{ id: 'solusi', label: 'Solusinya' }] : []),
+  ...(data.features.length > 0 ? [{ id: 'fitur', label: 'Fitur utama' }] : []),
+  ...(data.stack.length > 0 ? [{ id: 'stack', label: 'Stack dan alasannya' }] : []),
+  ...(data.agentWork.agent.length > 0 || data.agentWork.checked.length > 0
+    ? [{ id: 'agent', label: 'Dibangun dengan AI agent' }]
+    : []),
+  ...(data.results && data.results.length > 0 ? [{ id: 'hasil', label: 'Hasil' }] : []),
+];
+---
+<BaseLayout
+  title={data.name}
+  description={`Studi kasus ${data.name}: ${data.category}. ${data.summary.split('\n')[0]}`}
+  path={`/karya/${entry.id}`}
+>
+  <article class="case">
+    <header class="case__hero container-page">
+      <div class="case__meta mono-micro">
+        <span>{data.category}</span>
+        {data.year && <span>{data.year}</span>}
+        {data.role && <span>Peran: {data.role}</span>}
+        <span>{data.concept ? 'Konsep' : 'Proyek nyata'}</span>
+      </div>
+
+      <h1 class="case__title">{data.name}</h1>
+      <p class="case__summary">{data.summary}</p>
+
+      <div class="case__actions">
+        {data.url ? (
+          <a
+            class="btn btn--primary"
+            href={data.url}
+            rel="noopener noreferrer"
+            target="_blank"
+            data-source="case_study"
+          >
+            <span class="btn__inner">Lihat live site ↗</span>
+          </a>
+        ) : (
+          <span class="case__pending mono-label">Segera</span>
+        )}
+        <a class="btn btn--ghost" href={waLink} rel="noopener noreferrer" target="_blank" data-source="case_study">
+          <span class="btn__inner"><span class="btn-dot" aria-hidden="true"></span>Bahas proyek serupa</span>
+        </a>
+      </div>
+
+      {data.draft && (
+        <p class="case__draft">
+          <span class="mono-micro">DRAFT</span>
+          Sebagian isi halaman ini masih draft dan menunggu verifikasi Bima.
+        </p>
+      )}
+    </header>
+
+    <div class="case__media container-page">
+      {poster ? (
+        <img
+          class="case__poster"
+          src={poster.src}
+          width={poster.width}
+          height={poster.height}
+          alt={`Tampilan ${data.name}`}
+          fetchpriority="high"
+          decoding="async"
+          style={`view-transition-name: karya-${entry.id}`}
+        />
+      ) : (
+        <div class="case__plate" aria-hidden="true">
+          <span class="mono-micro">{data.category}</span>
+          <span class="case__plate-name">{data.name}</span>
+        </div>
+      )}
+      {video && (
+        <video class="case__video" src={video} muted loop playsinline preload="none" aria-label={`Pratinjau ${data.name}`}>
+        </video>
+      )}
+    </div>
+
+    <div class="case__body container-page">
+      <aside class="case__rail" aria-label="Isi halaman">
+        <ol>
+          {sections.map((section, i) => (
+            <li class="mono-micro">
+              <a href={`#${section.id}`}>
+                {String(i + 1).padStart(2, '0')} {section.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </aside>
+
+      <div class="case__prose">
+        <section id="ringkasan">
+          <h2>Ringkasan</h2>
+          <p>{data.summary}</p>
+        </section>
+
+        {data.problem && (
+          <section id="masalah">
+            <h2>Masalahnya</h2>
+            <p>{data.problem}</p>
+          </section>
+        )}
+
+        {data.solution && (
+          <section id="solusi">
+            <h2>Solusinya</h2>
+            <p>{data.solution}</p>
+          </section>
+        )}
+
+        {data.features.length > 0 && (
+          <section id="fitur">
+            <h2>Fitur utama</h2>
+            <ul class="case__features">
+              {data.features.map((feature) => (
+                <li>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.body}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {data.stack.length > 0 && (
+          <section id="stack">
+            <h2>Stack dan alasannya</h2>
+            <dl class="case__stack">
+              {data.stack.map((item) => (
+                <>
+                  <dt class="mono-label">{item.name}</dt>
+                  <dd>{item.why}</dd>
+                </>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        {(data.agentWork.agent.length > 0 || data.agentWork.checked.length > 0) && (
+          <section id="agent" class="case__agent">
+            <h2>Dibangun dengan AI agent</h2>
+            <div class="case__agent-cols">
+              <div>
+                <h3 class="mono-label">Dikerjakan agent</h3>
+                <ul>{data.agentWork.agent.map((item) => <li>{item}</li>)}</ul>
+              </div>
+              <div>
+                <h3 class="mono-label">Yang saya periksa &amp; koreksi</h3>
+                <ul>{data.agentWork.checked.map((item) => <li>{item}</li>)}</ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {data.results && data.results.length > 0 && (
+          <section id="hasil">
+            <h2>Hasil</h2>
+            <dl class="case__results">
+              {data.results.map((result) => (
+                <>
+                  <dt class="mono-label">{result.label}</dt>
+                  <dd>{result.value}</dd>
+                </>
+              ))}
+            </dl>
+          </section>
+        )}
+      </div>
+    </div>
+
+    <footer class="case__next container-page">
+      <p class="mono-label">Proyek berikutnya</p>
+      <a class="case__next-link" href={withBase(`/karya/${nextWork.slug}`)}>
+        <span>{nextWork.name}</span>
+        <span aria-hidden="true">→</span>
+      </a>
+      <p class="case__guarantee mono-micro">
+        Garansi bug {GUARANTEE_DAYS} · <a href={`${withBase('/')}#harga`}>lihat paket dan harga</a>
+      </p>
+    </footer>
+  </article>
+
+  <script>
+    import '@/scripts/case-study';
+  </script>
+</BaseLayout>
+
+<style>
+  .case {
+    padding-top: calc(var(--header-h) + var(--space-9));
+  }
+
+  .case__hero {
+    display: grid;
+    gap: var(--space-5);
+    max-width: var(--container);
+  }
+
+  .case__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    color: var(--color-gold);
+  }
+
+  .case__title {
+    font-size: var(--fs-display-l);
+    line-height: var(--lh-display-l);
+    letter-spacing: var(--track-display-l);
+    max-width: 24ch;
+  }
+
+  .case__summary {
+    max-width: var(--measure-intro);
+    font-size: var(--fs-body-l);
+    color: var(--color-text-2);
+  }
+
+  .case__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+  }
+
+  .case__pending {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--space-5);
+    border: var(--border-hairline);
+    border-radius: var(--r-sm);
+    color: var(--color-text-muted-hi);
+  }
+
+  .case__draft {
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-gold);
+    border-radius: var(--r-sm);
+    background: rgb(200 169 108 / 6%);
+    font-size: var(--fs-small);
+    color: var(--color-text-2);
+    max-width: var(--measure-prose);
+  }
+
+  .case__draft .mono-micro {
+    color: var(--color-gold);
+    margin-right: var(--space-2);
+  }
+
+  .case__media {
+    position: relative;
+    margin-top: var(--space-10);
+  }
+
+  .case__poster,
+  .case__plate {
+    width: 100%;
+    max-height: 640px;
+    border: var(--border-hairline);
+    border-radius: var(--r-lg);
+    object-fit: cover;
+    object-position: top center;
+    background: var(--color-surface-1);
+  }
+
+  .case__plate {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--space-4);
+    aspect-ratio: 16 / 9;
+  }
+
+  .case__plate-name {
+    font-size: var(--fs-display-m);
+  }
+
+  .case__video {
+    display: block;
+    width: 100%;
+    margin-top: var(--space-6);
+    border: var(--border-hairline);
+    border-radius: var(--r-md);
+  }
+
+  .case__body {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+    gap: var(--space-10);
+    margin-top: var(--space-12);
+  }
+
+  .case__rail ol {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-8));
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case__rail a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--dur-2) var(--ease-out-quint);
+  }
+
+  .case__rail a:hover {
+    color: var(--color-text);
+  }
+
+  .case__prose section + section {
+    margin-top: var(--space-10);
+  }
+
+  .case__prose h2 {
+    font-size: var(--fs-display-m);
+    line-height: var(--lh-display-m);
+    letter-spacing: var(--track-display-m);
+  }
+
+  .case__prose h3 {
+    font-size: var(--fs-h3);
+  }
+
+  .case__prose p,
+  .case__prose li {
+    margin-top: var(--space-4);
+    color: var(--color-text-2);
+    max-width: var(--measure-prose);
+  }
+
+  .case__features {
+    display: grid;
+    gap: var(--space-7);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case__features li {
+    padding-left: var(--space-6);
+    border-left: 1px solid var(--color-line-gold);
+  }
+
+  .case__features p {
+    margin-top: var(--space-2);
+  }
+
+  .case__stack,
+  .case__results {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+    gap: var(--space-3) var(--space-6);
+    margin: var(--space-6) 0 0;
+  }
+
+  .case__stack dt,
+  .case__results dt {
+    color: var(--color-gold);
+  }
+
+  .case__stack dd,
+  .case__results dd {
+    margin: 0;
+    color: var(--color-text-2);
+  }
+
+  .case__agent {
+    padding: var(--space-8);
+    border: var(--border-hairline);
+    border-left: 2px solid var(--color-line-gold);
+    border-radius: var(--r-md);
+    background: var(--color-surface-1);
+  }
+
+  .case__agent-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-7);
+    margin-top: var(--space-6);
+  }
+
+  .case__agent h3 {
+    color: var(--color-gold);
+  }
+
+  .case__next {
+    margin-top: var(--space-13);
+    padding-top: var(--space-8);
+    border-top: var(--border-hairline);
+  }
+
+  .case__next-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--fs-display-m);
+    line-height: var(--lh-display-m);
+    letter-spacing: var(--track-display-m);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .case__next-link:hover {
+    color: var(--color-gold-bright);
+  }
+
+  .case__guarantee {
+    margin-top: var(--space-6);
+    color: var(--color-text-muted);
+  }
+
+  .case__guarantee a {
+    color: var(--color-text-muted-hi);
+    /* Distinct from the surrounding text without relying on colour alone (axe
+       link-in-text-block): the underline is the non-colour cue. */
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  @media (max-width: 1023px) {
+    .case__body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .case__rail {
+      display: none;
+    }
+
+    .case__stack,
+    .case__results {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
