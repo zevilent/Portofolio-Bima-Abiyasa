@@ -14,6 +14,8 @@
 | A1 | Foto profil `public/images/bima.jpg` | Desain dulu tanpa foto; slot disiapkan dan aktif otomatis saat file ada | `DONE` |
 | A2 | Durasi garansi bug | **30–60 hari** (dipakai konsisten di 5 tempat, dijaga unit test) | `DONE` |
 | A3 | Sumber Price List PDF | Di-generate dari data harga (`scripts/generate-price-list.ts`), CI cek sinkron | `DONE` |
+| A4 | Repo & URL live | `zevilent/Portofolio-Bima-Abiyasa` (project site) → https://zevilent.github.io/Portofolio-Bima-Abiyasa/ · `base: '/Portofolio-Bima-Abiyasa'` | `DONE` |
+| A5 | Proposal P1–P8 (brief §14) | Disetujui sesuai usulan saya (P5 draft studi kasus, P6 pemetaan layanan, P7 daftar marquee, P8 rentang budget) | `DONE` |
 
 ## B. Perlu keputusan Anda (proposal di `docs/brief.md` §14)
 
@@ -32,10 +34,10 @@
 
 | # | Item | Kenapa | Blokir |
 |---|---|---|---|
-| C1 | Buat repo publik `zevilent.github.io` di akun `zevilent` | Deploy GitHub Pages tidak bisa saya lakukan | M1 |
-| C2 | Settings → Pages → Source = **GitHub Actions** | Workflow `deploy.yml` butuh ini | M1 |
-| C3 | Setelah M1: cek https://zevilent.github.io/ terbuka | Bukti live URL benar-benar jalan | M1 |
-| C4 | Konfirmasi apakah repo portofolio ini memang `zevilent.github.io` (bukan repo terpisah + `base`) | Menentukan `site`/`base` Astro | M1 |
+| C1 | ~~Buat repo publik~~ **SELESAI**: `zevilent/Portofolio-Bima-Abiyasa` (Public) | Deploy GitHub Pages tidak bisa saya lakukan | `DONE` |
+| C2 | Settings → Pages → Source = **GitHub Actions** (repo `Portofolio-Bima-Abiyasa`) | Workflow `deploy.yml` butuh ini | M1 |
+| C3 | Setelah M1: cek https://zevilent.github.io/Portofolio-Bima-Abiyasa/ terbuka | Bukti live URL benar-benar jalan | M1 |
+| C4 | ~~Konfirmasi repo/URL~~ **SELESAI (D4)**: project site → `base: '/Portofolio-Bima-Abiyasa'`, semua link lewat `withBase()` | Sudah diputuskan di sesi 1 | `DONE` |
 | C5 | Kalau mau custom domain nanti: beli domain + akses DNS | Saya tulis langkahnya di `docs/custom-domain.md` | nanti |
 
 ## D. Fakta proyek (tidak boleh saya karang) — blokir M3

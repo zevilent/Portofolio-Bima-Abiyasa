@@ -15,7 +15,10 @@ menghubungi WhatsApp dengan brief singkat yang rapi.
 ## Tech (tetap, jangan diganti tanpa izin)
 
 - Astro + TypeScript + Tailwind CSS, **static export**. Tanpa database, tanpa server, tanpa secret.
-- Deploy GitHub Pages user site: repo `zevilent.github.io`, live di https://zevilent.github.io/, `site` + `base: "/"`.
+- Deploy GitHub Pages **project site**: repo `zevilent/Portofolio-Bima-Abiyasa`, live di
+  https://zevilent.github.io/Portofolio-Bima-Abiyasa/ → **wajib** `site: 'https://zevilent.github.io'`
+  + `base: '/Portofolio-Bima-Abiyasa'`. Semua `href`/`src`/rute internal lewat helper `withBase()`
+  (satu tempat) — jangan pernah menulis path absolut ke root. Pindah ke URL bersih/custom domain = ubah satu baris.
 - Studi kasus = Astro Content Collections (satu file Markdown per proyek, schema zod bertipe).
 - Navigasi = Astro View Transitions (`ClientRouter`).
 - Library motion/3D **hanya**: GSAP (core + ScrollTrigger + SplitText), Lenis, Three.js.

@@ -1,7 +1,8 @@
 # docs/brief.md — Bima Abiyasa · "The Agentic Studio"
 
 > **Status:** ⏸ **Awaiting your approval** (Process step 2). Nothing has been installed or built yet.
-> **Owner:** Bima Abiyasa · **Repo:** `zevilent.github.io` → https://zevilent.github.io/ · **Stack:** Astro + TypeScript + Tailwind CSS, static export.
+> **Owner:** Bima Abiyasa · **Repo:** `zevilent/Portofolio-Bima-Abiyasa` (Public, empty at session 1) → live at https://zevilent.github.io/Portofolio-Bima-Abiyasa/ · **Stack:** Astro + TypeScript + Tailwind CSS, static export.
+> **Deploy target (decided in session 1, D4):** GitHub Pages **project site**, so `site: 'https://zevilent.github.io'` and `base: '/Portofolio-Bima-Abiyasa'`. Every internal href/src/asset/route goes through one `withBase()` helper (`src/lib/url.ts`) so nothing hardcodes the prefix and a future move to a clean URL or custom domain is a one-line change.
 > **Docs language:** technical docs in English, all site copy and the README in Bahasa Indonesia. Say the word if you want the docs in Indonesian too.
 > **Source of truth:** `docs/prompt.md` (your original prompt). If anything here contradicts it, the prompt wins.
 > **Verified environment:** Node v26.5.0 (arm64), npm 11.17.0, ffmpeg + ffprobe present at `/opt/homebrew/bin`, registry versions checked on the day of writing (Astro 7.3.2, Tailwind 4.3.3, GSAP 3.15.0, Lenis 1.3.26, Three 0.186.0, Vitest 5.0.0, Playwright 1.63.0, `@fontsource-variable/geist` 5.3.0, `@fontsource/instrument-serif` 5.3.0).
@@ -546,9 +547,9 @@ No layout reads in scroll/pointer handlers (batched in `rAF`, cached rects inval
 
 ### 10.1 SEO
 
-- Indexing ON. `@astrojs/sitemap` + hand-written `robots.txt` (`Allow: /`, sitemap URL), `site: 'https://zevilent.github.io'` in `astro.config.mjs`.
+- Indexing ON. `@astrojs/sitemap` + hand-written `robots.txt` (`Allow: /`, sitemap URL), `site: 'https://zevilent.github.io'` + `base: '/Portofolio-Bima-Abiyasa'` in `astro.config.mjs`. Canonical URLs, `og:url`, the sitemap, and the OG-image endpoint all derive from `Astro.site` + `Astro.base` through `withBase()` — never from a hardcoded string.
 - Per page: unique `<title>` (§5.13), unique meta description, `<link rel="canonical">`, `og:*` + `twitter:card=summary_large_image`, `theme-color: #0A0A0B`.
-- **OG images generated at build time** for every route via an Astro endpoint (`satori` + `@resvg/resvg-js`, both build-only deps) at 1200×630: obsidian ground, 12-col hairline grid, mono plate label, the page title in Geist with the accent word in Instrument Serif italic, gold hairline, `zevilent.github.io` in mono. Deterministic, cached in `dist`, no runtime service.
+- **OG images generated at build time** for every route via an Astro endpoint (`satori` + `@resvg/resvg-js`, both build-only deps) at 1200×630: obsidian ground, 12-col hairline grid, mono plate label, the page title in Geist with the accent word in Instrument Serif italic, gold hairline, `zevilent.github.io/Portofolio-Bima-Abiyasa` in mono. Deterministic, cached in `dist`, no runtime service.
 - **JSON-LD:** home = `Person` (name, jobTitle, address Bogor/ID, `knowsAbout` = your services, `sameAs` = your 5 links) + `ProfessionalService` (name, areaServed `ID`, `priceRange: 'Rp3.900.000+'`, `makesOffer` per package with `price`/`priceCurrency: 'IDR'`, `availableChannel` → WhatsApp). Case studies = `CreativeWork` (name, about, dateCreated *only if you supply a real date*, author → Person, `url` = live site). FAQ = `FAQPage` from `faq.ts`. **No** `aggregateRating`, **no** `review`, **no** invented `datePublished` — fake structured data is both dishonest and a manual-action risk.
 - Favicon set: `favicon.svg` (monogram BA as vector), `favicon.ico`, `apple-touch-icon.png` 180, `icon-192/512.png`, `manifest.webmanifest` (`standalone`, `theme_color #0A0A0B`, `background_color #0A0A0B`, Indonesian `description`).
 - Internal linking: every case study links to the next/previous project; each service card links to its matched case study; the 404 lists real routes only.
