@@ -1,0 +1,39 @@
+---
+/**
+ * Home — M1 placeholder. The real sections (hero, WebGL, works, services, process,
+ * pricing, terms, CTA, footer) are built in M2–M5. This page exists so the M1 gate
+ * has a real document to build, deploy and audit: correct head, landmarks, and the
+ * site's typography actually rendered with the real tokens.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site } from '@/config/site';
+import { worksSorted } from '@/config/works';
+import { GUARANTEE_DAYS } from '@/config/terms';
+
+const [taglineLead = site.tagline, taglineRest = ''] = site.tagline.split('smarter');
+---
+<BaseLayout>
+  <section class="section container-page">
+    <p class="mono-micro">00 / FONDASI</p>
+    <h1 style="font-size: var(--fs-display-l); line-height: var(--lh-display-l); letter-spacing: var(--track-display-l); margin-top: var(--space-6);">
+      {taglineLead}
+      <span class="accent-serif">smarter</span>{taglineRest}
+    </h1>
+    <p style="font-size: var(--fs-body-l); color: var(--color-text-2); margin-top: var(--space-6);">
+      {site.oneLiner}
+    </p>
+  </section>
+
+  <section class="section container-page" style="border-top: var(--border-hairline);">
+    <p class="mono-label">M1 / STATUS</p>
+    <h2 style="font-size: var(--fs-display-m); line-height: var(--lh-display-m); margin-top: var(--space-4);">
+      Fondasi siap. Desain dimulai di M2.
+    </h2>
+    <ul style="margin-top: var(--space-8); display: grid; gap: var(--space-3); max-width: var(--measure-prose);">
+      <li>Astro 7 + TypeScript strict + Tailwind v4 dengan token dari brief.</li>
+      <li>Font self-hosted: Geist, Geist Mono, Instrument Serif italic.</li>
+      <li>Garansi bug {GUARANTEE_DAYS} — satu sumber, dipakai di pricing, FAQ, dan PDF.</li>
+      <li>{worksSorted.length} proyek siap ditulis sebagai studi kasus di M3.</li>
+    </ul>
+  </section>
+</BaseLayout>

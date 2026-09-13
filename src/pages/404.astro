@@ -1,0 +1,44 @@
+---
+/**
+ * 404 — M1 version. The designed 404 with the agent terminal ("route not found")
+ * and a particle field is built in M5; this keeps the route real and useful now.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site } from '@/config/site';
+import { primaryNav } from '@/config/nav';
+import { worksSorted } from '@/config/works';
+import { withBase } from '@/lib/url';
+---
+<BaseLayout title="Halaman tidak ditemukan" description={site.seo.description404} noindex>
+  <section class="section container-page">
+    <p class="mono-micro">404 / ROUTE</p>
+    <h1
+      style="font-size: var(--fs-display-l); line-height: var(--lh-display-l); margin-top: var(--space-6);"
+    >
+      route not found
+    </h1>
+    <p style="color: var(--color-text-2); margin-top: var(--space-6);">
+      Halaman yang Anda cari tidak ada atau sudah dipindahkan.
+    </p>
+
+    <nav aria-label="Tautan yang disarankan" style="margin-top: var(--space-9);">
+      <ul style="display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6);">
+        <li><a class="mono-label" href={withBase('/')}>Beranda</a></li>
+        {primaryNav.map((item) => (
+          <li><a class="mono-label" href={`${withBase('/')}${item.href}`}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <section style="margin-top: var(--space-9);">
+      <h2 class="mono-micro">Studi kasus</h2>
+      <ul style="display: grid; gap: var(--space-2); margin-top: var(--space-4);">
+        {worksSorted.map((work) => (
+          <li>
+            <a href={withBase(`/karya/${work.slug}`)}>{work.name}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </section>
+</BaseLayout>

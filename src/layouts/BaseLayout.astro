@@ -1,0 +1,96 @@
+---
+/**
+ * BaseLayout — the single document shell (brief §4, §9, §10.1).
+ * M1 scope: correct head, landmarks, skip link, grain, header/footer placeholders.
+ * Header, footer, consent bar and command palette arrive in M2/M5/M6 and slot in here.
+ */
+import '@/styles/global.css';
+import { site } from '@/config/site';
+import { flags } from '@/config/flags';
+import { availability } from '@/config/availability';
+import { withBase, absoluteUrl } from '@/lib/url';
+
+export type Props = {
+  /** Page title without the site suffix. Omit on the home page to use seo.homeTitle. */
+  title?: string;
+  description?: string;
+  /** Path (unbased) used for canonical + og:url, e.g. '/karya/niaga-one'. */
+  path?: string;
+  /** Keep the page out of the index (not used by any current page — indexing is ON). */
+  noindex?: boolean;
+};
+
+const { title, description, path = '/', noindex = false } = Astro.props;
+
+const pageTitle = title ? `${title} — ${site.name}` : site.seo.homeTitle;
+const metaDescription = description ?? site.seo.defaultDescription;
+const canonical = absoluteUrl(path);
+---
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta name="theme-color" content={site.seo.themeColor} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="author" content={site.name} />
+
+    <!-- Open Graph / Twitter. OG image endpoint lands in M6. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+
+    <!--
+      Font preload: only the display face used above the fold (Geist). Mono and the
+      serif accent are not preloaded — they never render the LCP element (brief §8.2).
+    -->
+    <link
+      rel="preload"
+      href={withBase('/fonts/geist-latin-var.woff2')}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/manifest.webmanifest')} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#konten">Lewati ke konten</a>
+    <header class="container-page" data-site-header>
+      <a href={withBase('/')} aria-label={`${site.name} — beranda`} class="mono-label">
+        {site.initials}
+      </a>
+      {flags.SHOW_AVAILABILITY && availability.enabled && (
+        <span class="mono-micro" data-availability>{availability.label}</span>
+      )}
+    </header>
+
+    <main id="konten" data-pagefind-body>
+      <slot />
+    </main>
+
+    <footer class="container-page" data-site-footer>
+      <p class="mono-micro">
+        © {new Date().getFullYear()}
+        {site.name}
+      </p>
+      <slot name="footer" />
+    </footer>
+
+    {flags.SHOW_GRAIN && <div class="grain" aria-hidden="true"></div>}
+  </body>
+</html>

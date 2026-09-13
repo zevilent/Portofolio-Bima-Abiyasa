@@ -1,0 +1,241 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './fonts.css';
+
+/* Tailwind v4 theme bridge: tokens.css stays the single source of truth,
+   Tailwind utilities are generated from it. */
+@theme {
+  --color-bg: var(--color-bg);
+  --color-surface-1: var(--color-surface-1);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-text: var(--color-text);
+  --color-text-2: var(--color-text-2);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-muted-hi: var(--color-text-muted-hi);
+  --color-gold: var(--color-gold);
+  --color-gold-bright: var(--color-gold-bright);
+  --color-ember: var(--color-ember);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-line-gold: var(--color-line-gold);
+
+  --font-display: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, 'SFMono-Regular', monospace;
+  --font-serif: 'Instrument Serif', 'Instrument Serif Fallback', ui-serif, Georgia, serif;
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-pill: var(--r-pill);
+
+  --ease-luxe: var(--ease-luxe);
+  --ease-out-quint: var(--ease-out-quint);
+  --ease-in-out-quart: var(--ease-in-out-quart);
+  --ease-spring: var(--ease-spring);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--color-bg);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: var(--track-heading);
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  max-width: var(--measure-prose);
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--color-line-strong);
+  text-underline-offset: 0.25em;
+}
+
+img,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* Focus: gold, always visible, never removed. */
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--r-xs);
+}
+
+::selection {
+  background: rgb(200 169 108 / 22%);
+  color: var(--color-text);
+}
+
+/* Film grain: one static layer, never animated (brief §2.3). */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Architect plate: 12-col rule overlay, desktop only, purely decorative. */
+.plate-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--grid-lines-opacity);
+  display: none;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-text) 0 1px,
+    transparent 1px calc(100% / 12)
+  );
+}
+
+@media (min-width: 1024px) {
+  .plate-grid {
+    display: block;
+  }
+}
+
+/* Utility layer used by every section shell (see brief §3.3). */
+.container-page {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding-block: var(--section-block);
+}
+
+.mono-label {
+  font-family: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, monospace;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--track-mono);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.mono-micro {
+  font-family: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, monospace;
+  font-size: var(--fs-mono-micro);
+  letter-spacing: var(--track-mono-micro);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.hairline-t {
+  border-top: var(--border-hairline);
+}
+
+.accent-serif {
+  font-family: 'Instrument Serif', 'Instrument Serif Fallback', ui-serif, Georgia, serif;
+  font-style: italic;
+  color: var(--color-gold-bright);
+  letter-spacing: var(--track-serif);
+}
+
+/* Skip link — visible on first Tab only. */
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -100%;
+  z-index: 90;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface-2);
+  border: var(--border-gold);
+  font-family: 'Geist Mono', monospace;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--track-mono);
+  text-transform: uppercase;
+  color: var(--color-text);
+  transition: top var(--dur-2) var(--ease-out-quint);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   prefers-reduced-motion — content identical, motion removed.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Print — the price list PDF is generated from these same pages.
+   ============================================================ */
+
+@media print {
+  .grain,
+  .skip-link {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

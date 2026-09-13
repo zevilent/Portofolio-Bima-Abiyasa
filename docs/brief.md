@@ -67,8 +67,8 @@ Reference feel: an unlit gallery at night, brass fittings catching one warm ligh
 | `surface-3` | `#221F1B` | pressed/active, palette rows on hover | — | hottest neutral in the ramp |
 | `ivory` | `#F2EEE6` | headlines, primary text | **17.1:1** | warm ivory — never `#FFFFFF` |
 | `ivory-2` | `#A9A49A` | body, secondary text | **7.9:1** | passes AA even for small text |
-| `ivory-muted` | `#7E7A72` | mono metadata on canvas/surface-1 | **4.6:1** | the quietest text allowed on any surface |
-| `ivory-muted-hi` | `#98938A` | mono metadata on `surface-2`/`surface-3` | **5.8:1** | muted text is *not* allowed on elevated surfaces at the darker value |
+| `ivory-muted` | `#86827A` | mono metadata on canvas/surface-1 | **5.0:1** | the quietest text allowed on any surface |
+| `ivory-muted-hi` | `#98938A` | mono metadata on `surface-2`/`surface-3` | **5.3:1** | muted text is *not* allowed on elevated surfaces at the darker value |
 | `gold` | `#C8A96C` | hairline rules, hover states, active numbers, links | **8.8:1** | champagne, matte — no metallic gradient |
 | `gold-bright` | `#E6CBA0` | the one emphasised word in a headline, key figures | **12.6:1** | used at most once per screen |
 | `ember` | `#FF5A24` | **live states only**: availability dot, active agent step, cursor "Buka" label | **6.4:1** | your Phoenix Signal nod; never a background, never a large area |

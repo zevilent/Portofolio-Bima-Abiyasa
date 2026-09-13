@@ -1,0 +1,5 @@
+# Portofolio Bima Abiyasa — indexing ON (this is a real business site).
+User-agent: *
+Allow: /
+
+Sitemap: https://zevilent.github.io/Portofolio-Bima-Abiyasa/sitemap-index.xml

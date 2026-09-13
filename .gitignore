@@ -1,0 +1,21 @@
+# Situs statis: tidak ada build output, cache, atau file sistem yang ikut repo.
+node_modules/
+dist/
+.astro/
+src/env.d.ts.timestamp
+.DS_Store
+*.log
+npm-debug.log*
+.env
+.env.*
+!.env.example
+# Playwright (ditambahkan di M3)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+# Lighthouse CI (ditambahkan di M6)
+.lighthouseci/
+# Output sementara script (capture, PDF, screenshot review)
+/tmp/
+.cache/
