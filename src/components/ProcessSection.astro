@@ -1,0 +1,286 @@
+---
+/**
+ * ProcessSection (brief §6/06) — the signature section.
+ *
+ * Desktop: an SVG orchestration diagram whose edges draw as the section scrolls, next to
+ * five steps with two columns each ("Yang saya putuskan" / "Yang dikerjakan agent").
+ * Mobile and reduced motion: a plain vertical timeline with the same content, no pinning
+ * and no drawing.
+ *
+ * The diagram is decorative: every fact in it also exists as text.
+ */
+import { processSteps, processIntro, processClosing, processColumnLabels } from '@/config/process';
+---
+<section class="process section" id="proses" aria-labelledby="proses-title">
+  <header class="process__head container-page">
+    <p class="mono-label process__eyebrow">05 / CARA KERJA</p>
+    <div class="process__intro">
+      <h2 id="proses-title">
+        Bagaimana saya membangun dengan <span class="accent-serif">AI agent</span>.
+      </h2>
+      <p>{processIntro}</p>
+    </div>
+  </header>
+
+  <div class="process__body container-page">
+    <div class="process__diagram" data-orchestration aria-hidden="true">
+      <svg viewBox="0 0 260 620" role="presentation">
+        <path class="orch__spine" d="M40 40 V580" />
+        {processSteps.map((step, i) => (
+          <g class="orch__node" data-orch-node style={`--i:${i}`}>
+            <path class="orch__link" d={`M40 ${64 + i * 128} H 96`} data-orch-link />
+            <circle class="orch__dot" cx="40" cy={64 + i * 128} r="3.5" />
+            <text class="orch__label" x="112" y={62 + i * 128}>
+              {step.name}
+            </text>
+            <text class="orch__index" x="112" y={82 + i * 128}>
+              {step.index}
+            </text>
+          </g>
+        ))}
+      </svg>
+    </div>
+
+    <ol class="process__steps" data-process>
+      {processSteps.map((step, i) => (
+        <li class="step" data-step style={`--i:${i}`}>
+          <p class="step__index mono-micro">{step.index}</p>
+          <h3 class="step__name">{step.name}</h3>
+
+          <div class="step__cols">
+            <div class="step__col step__col--human">
+              <h4 class="mono-micro">{processColumnLabels.human}</h4>
+              <ul>
+                {step.human.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div class="step__col step__col--agent">
+              <h4 class="mono-micro">{processColumnLabels.agent}</h4>
+              <ul>
+                {step.agent.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <p class="step__output mono-micro">
+            <span>{processColumnLabels.output}</span>
+            {step.output}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <p class="process__closing container-page">{processClosing}</p>
+</section>
+
+<style>
+  .process {
+    border-top: var(--border-hairline);
+  }
+
+  .process__head {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-6);
+  }
+
+  .process__eyebrow {
+    color: var(--color-gold);
+  }
+
+  .process__intro h2 {
+    font-size: var(--fs-display-l);
+    line-height: var(--lh-display-l);
+    letter-spacing: var(--track-display-l);
+    max-width: 22ch;
+  }
+
+  .process__intro p {
+    margin-top: var(--space-5);
+    max-width: var(--measure-intro);
+    color: var(--color-text-2);
+  }
+
+  .process__body {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-11);
+    margin-top: var(--space-12);
+  }
+
+  .process__diagram {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-9));
+    align-self: start;
+  }
+
+  .process__diagram svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .orch__spine,
+  .orch__link {
+    fill: none;
+    stroke: var(--color-line-strong);
+    stroke-width: 1;
+  }
+
+  .orch__link {
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+  }
+
+  .orch__dot {
+    fill: var(--color-gold);
+    opacity: 0.35;
+  }
+
+  .orch__node[data-active] .orch__link {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset var(--dur-6) var(--ease-luxe);
+  }
+
+  .orch__node[data-active] .orch__dot {
+    opacity: 1;
+    fill: var(--color-ember);
+  }
+
+  .orch__label {
+    fill: var(--color-text-2);
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+
+  .orch__index {
+    fill: var(--color-text-muted);
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+
+  .process__steps {
+    display: grid;
+    gap: var(--space-11);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    padding-left: var(--space-7);
+    border-left: 1px solid var(--color-line);
+    scroll-margin-top: calc(var(--header-h) + var(--space-8));
+  }
+
+  .step__index {
+    color: var(--color-gold);
+  }
+
+  .step__name {
+    margin-top: var(--space-2);
+    font-size: var(--fs-h3);
+  }
+
+  .step__cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+  }
+
+  .step__col h4 {
+    color: var(--color-gold);
+  }
+
+  .step__col--agent h4 {
+    color: var(--color-text-muted-hi);
+  }
+
+  .step__col ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step__col li {
+    position: relative;
+    padding-left: var(--space-5);
+    color: var(--color-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .step__col li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 10px;
+    height: 1px;
+    background: var(--color-line-strong);
+  }
+
+  .step__col--human li::before {
+    background: var(--color-line-gold);
+  }
+
+  .step__output {
+    margin-top: var(--space-6);
+    color: var(--color-text-muted-hi);
+  }
+
+  .step__output span {
+    color: var(--color-text-muted);
+    margin-right: var(--space-2);
+  }
+
+  .process__closing {
+    margin-top: var(--space-13);
+    max-width: 60ch;
+    font-size: var(--fs-display-m);
+    line-height: var(--lh-display-m);
+    letter-spacing: var(--track-display-m);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 1023px) {
+    .process__head,
+    .process__body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .process__diagram {
+      display: none;
+    }
+
+    .process__steps {
+      gap: var(--space-9);
+    }
+
+    .step {
+      padding-left: var(--space-6);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .process__diagram {
+      display: none;
+    }
+
+    .orch__link {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
+
+<script>
+  import '@/scripts/process';
+</script>

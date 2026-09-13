@@ -35,6 +35,8 @@
     "test:watch": "vitest",
     "verify": "npm run check && npm run test && npm run build",
     "capture": "node --experimental-strip-types scripts/capture.ts",
-    "budget": "node --experimental-strip-types scripts/check-budget.ts"
+    "budget": "node --experimental-strip-types scripts/check-budget.ts",
+    "price-list": "node --experimental-strip-types scripts/generate-price-list.ts",
+    "price-list:check": "node --experimental-strip-types scripts/check-price-list.ts"
   }
 }

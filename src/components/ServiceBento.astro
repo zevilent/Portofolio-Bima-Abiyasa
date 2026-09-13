@@ -1,0 +1,357 @@
+---
+/**
+ * ServiceBento (brief §6/05, §5.5).
+ *
+ * Two groups: Website (3 packages) and Web Application (5 packages). The popular package
+ * spans two columns, one web-app package spans the full row. Every price goes through
+ * formatPrice() so SHOW_PRICES=false turns the whole grid into "Minta estimasi" instead of
+ * leaving a price-shaped hole.
+ *
+ * Details that hover would hide are also reachable by keyboard focus and, on touch, by an
+ * explicit toggle — a hover-only reveal would fail on mobile and for keyboard users (§9).
+ */
+import {
+  websitePackages,
+  webAppPackages,
+  websiteInclusions,
+  webAppIntro,
+} from '@/config/services';
+import { formatPrice } from '@/lib/format';
+import { flags } from '@/config/flags';
+import { withBase } from '@/lib/url';
+
+const showPrices = flags.SHOW_PRICES;
+
+const groups = [
+  {
+    id: 'website',
+    title: 'Website',
+    lead: `Semua paket website termasuk: ${websiteInclusions.join(', ').toLowerCase()}.`,
+    packages: websitePackages,
+  },
+  {
+    id: 'aplikasi',
+    title: 'Web Application',
+    lead: webAppIntro,
+    packages: webAppPackages,
+  },
+];
+---
+<section class="services section" id="layanan" aria-labelledby="layanan-title">
+  <header class="services__head container-page">
+    <p class="mono-label services__eyebrow">04 / LAYANAN</p>
+    <div class="services__intro">
+      <h2 id="layanan-title">Layanan</h2>
+      <p>
+        Dua jalur pekerjaan: website dan web application. Harga mulai tertera; angka final
+        mengikuti scope yang disetujui.
+      </p>
+    </div>
+  </header>
+
+  {groups.map((group) => (
+    <div class="services__group container-page" id={`layanan-${group.id}`}>
+      <div class="services__group-head">
+        <h3 class="services__group-title">{group.title}</h3>
+        <p class="services__group-lead">{group.lead}</p>
+      </div>
+
+      <ul class="bento" data-bento>
+        {group.packages.map((pkg) => (
+          <li
+            class:list={[
+              'bento__tile',
+              pkg.popular && 'bento__tile--wide',
+              pkg.id === 'sistem-kompleks' && 'bento__tile--full',
+            ]}
+            data-spotlight
+          >
+            <details class="bento__details">
+              <summary class="bento__summary">
+                <span class="bento__plate">
+                  {pkg.popular && <span class="bento__badge mono-micro">Terpopuler</span>}
+                  <span class="mono-micro bento__for">{pkg.forWho}</span>
+                </span>
+
+                <span class="bento__title">{pkg.name}</span>
+
+                <span class="bento__price">
+                  <span class="mono-micro">{showPrices ? 'Mulai' : 'Harga'}</span>
+                  <span class="bento__figure">{formatPrice(pkg.price, showPrices)}</span>
+                </span>
+
+                <span class="bento__plate-line mono-micro">
+                  {pkg.revisions} · {pkg.timeline}
+                </span>
+
+                <span class="bento__toggle mono-micro" aria-hidden="true">
+                  <span class="bento__toggle-open">Selengkapnya</span>
+                  <span class="bento__toggle-close">Tutup</span>
+                </span>
+              </summary>
+
+              <div class="bento__body">
+                <ul class="bento__list">
+                  {pkg.deliverables.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+
+                {pkg.exampleSlug && (
+                  <a class="bento__example mono-label" href={withBase(`/karya/${pkg.exampleSlug}`)}>
+                    {pkg.exampleLabel ?? 'Lihat contoh'} <span aria-hidden="true">→</span>
+                  </a>
+                )}
+              </div>
+            </details>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</section>
+
+<style>
+  .services {
+    border-top: var(--border-hairline);
+  }
+
+  .services__head {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-6);
+  }
+
+  .services__eyebrow {
+    color: var(--color-gold);
+  }
+
+  .services__intro h2 {
+    font-size: var(--fs-display-l);
+    line-height: var(--lh-display-l);
+    letter-spacing: var(--track-display-l);
+  }
+
+  .services__intro p {
+    margin-top: var(--space-5);
+    max-width: var(--measure-intro);
+    color: var(--color-text-2);
+  }
+
+  .services__group {
+    margin-top: var(--space-11);
+  }
+
+  .services__group-head {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-6);
+    padding-bottom: var(--space-5);
+    border-bottom: var(--border-hairline);
+  }
+
+  .services__group-title {
+    font-size: var(--fs-h3);
+  }
+
+  .services__group-lead {
+    color: var(--color-text-2);
+  }
+
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    margin: var(--space-7) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bento__tile {
+    position: relative;
+    border: var(--border-hairline);
+    border-radius: var(--r-md);
+    background: var(--color-surface-1);
+    overflow: hidden;
+    transition:
+      border-color var(--dur-2) var(--ease-out-quint),
+      transform var(--dur-2) var(--ease-out-quint);
+  }
+
+  /* Gold spotlight follows the pointer via --mx/--my (set in spotlight.ts). */
+  .bento__tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--glow-gold);
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out-quint);
+  }
+
+  .bento__tile:hover,
+  .bento__tile:focus-within {
+    border-color: var(--color-line-strong);
+  }
+
+  .bento__tile:hover::after,
+  .bento__tile:focus-within::after {
+    opacity: 1;
+  }
+
+  .bento__tile--wide {
+    grid-column: span 2;
+  }
+
+  .bento__tile--full {
+    grid-column: 1 / -1;
+  }
+
+  .bento__details {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+  }
+
+  .bento__summary {
+    display: grid;
+    gap: var(--space-4);
+    padding: clamp(var(--space-6), 3vw, var(--space-9));
+    cursor: pointer;
+    list-style: none;
+    min-height: 44px;
+  }
+
+  .bento__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .bento__plate {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .bento__badge {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-gold);
+    border-radius: var(--r-pill);
+    color: var(--color-gold);
+  }
+
+  .bento__for {
+    color: var(--color-text-muted-hi);
+  }
+
+  .bento__title {
+    font-size: var(--fs-h3);
+    letter-spacing: var(--track-heading);
+  }
+
+  .bento__price {
+    display: grid;
+    gap: var(--space-1);
+    margin-top: auto;
+  }
+
+  .bento__figure {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-gold-bright);
+  }
+
+  .bento__plate-line {
+    color: var(--color-text-muted);
+  }
+
+  .bento__toggle {
+    color: var(--color-text-muted);
+  }
+
+  .bento__toggle-close {
+    display: none;
+  }
+
+  .bento__details[open] .bento__toggle-open {
+    display: none;
+  }
+
+  .bento__details[open] .bento__toggle-close {
+    display: inline;
+  }
+
+  .bento__body {
+    padding: 0 clamp(var(--space-6), 3vw, var(--space-9)) clamp(var(--space-6), 3vw, var(--space-9));
+  }
+
+  .bento__list {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--border-hairline);
+    padding-top: var(--space-5);
+  }
+
+  .bento__list li {
+    position: relative;
+    padding-left: var(--space-5);
+    color: var(--color-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .bento__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 12px;
+    height: 1px;
+    background: var(--color-line-gold);
+  }
+
+  .bento__example {
+    display: inline-flex;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    color: var(--color-gold);
+    text-decoration: none;
+  }
+
+  .bento__example:hover {
+    color: var(--color-gold-bright);
+  }
+
+  @media (min-width: 1024px) {
+    /* On desktop the details open on pointer hover as well as on click, so the tile
+       "reveals" without hiding information behind a click. */
+    .bento__tile[data-spotlight]:hover .bento__body {
+      display: block;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .services__head,
+    .services__group-head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bento__tile--wide,
+    .bento__tile--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .bento {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

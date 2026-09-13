@@ -7,21 +7,32 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import CapabilityMarquee from '@/components/CapabilityMarquee.astro';
 import WorkStack from '@/components/WorkStack.astro';
+import ServiceBento from '@/components/ServiceBento.astro';
+import ProcessSection from '@/components/ProcessSection.astro';
+import Pricing from '@/components/Pricing.astro';
+import TermsFaq from '@/components/TermsFaq.astro';
 import { site } from '@/config/site';
 ---
 <BaseLayout>
   <Hero />
   <CapabilityMarquee />
   <WorkStack />
+  <ServiceBento />
+  <ProcessSection />
+  <Pricing />
+  <TermsFaq />
 
-  <section class="container-page placeholder" id="layanan">
-    <p class="mono-label">M3 / SELANJUTNYA</p>
-    <h2>Layanan, proses, harga, dan FAQ menyusul di milestone berikutnya.</h2>
+  <section class="container-page placeholder">
+    <p class="mono-label">M4 / SELANJUTNYA</p>
+    <h2>Form brief, command palette, footer lengkap, dan halaman 404 menyusul.</h2>
     <p>{site.liveUrl}</p>
   </section>
 
   <script>
     import '@/scripts/hero-page';
+    import '@/scripts/spotlight';
+    import '@/scripts/pricing';
+    import '@/scripts/accordion';
   </script>
 </BaseLayout>
 

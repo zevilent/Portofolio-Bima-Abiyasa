@@ -1,0 +1,456 @@
+---
+/**
+ * Pricing (brief §6/07, §5.7).
+ *
+ * Two tabs (Website / Web Application) implemented as a real tablist with arrow-key
+ * support. Add-ons and maintenance come straight from config; the price note is always
+ * visible, and SHOW_PRICES=false swaps every figure for "Minta estimasi" and hides the PDF
+ * (a price list with hidden prices would be dishonest).
+ */
+import { websitePackages, webAppPackages } from '@/config/services';
+import { addons, maintenancePlans } from '@/config/addons';
+import { priceNote } from '@/config/terms';
+import { flags } from '@/config/flags';
+import { formatPrice } from '@/lib/format';
+import { site } from '@/config/site';
+import { withBase } from '@/lib/url';
+import { consultWhatsappUrl } from '@/lib/whatsapp';
+
+const showPrices = flags.SHOW_PRICES;
+const waLink = consultWhatsappUrl(site.contact.whatsapp);
+
+const tabs = [
+  {
+    id: 'website',
+    label: 'Website',
+    note: 'Paket website dengan jumlah halaman tetap.',
+    packages: websitePackages,
+    columns: 3,
+  },
+  {
+    id: 'app',
+    label: 'Web Application',
+    note: 'Sistem full-stack: autentikasi, database, dashboard, integrasi layanan.',
+    packages: webAppPackages,
+    columns: 2,
+  },
+];
+---
+<section class="pricing section" id="harga" aria-labelledby="harga-title">
+  <header class="pricing__head container-page">
+    <p class="mono-label pricing__eyebrow">06 / HARGA</p>
+    <div class="pricing__intro">
+      <h2 id="harga-title">Harga</h2>
+      <p>Harga mulai yang bisa Anda bandingkan. Angka akhir mengikuti scope yang disetujui.</p>
+    </div>
+  </header>
+
+  <div class="container-page">
+    <div class="pricing__tabs" role="tablist" aria-label="Kategori paket" data-pricing-tabs>
+      {tabs.map((tab, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${tab.id}`}
+          aria-controls={`panel-${tab.id}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+          class="pricing__tab mono-label"
+          data-pricing-tab
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+
+    {tabs.map((tab, i) => (
+      <div
+        role="tabpanel"
+        id={`panel-${tab.id}`}
+        aria-labelledby={`tab-${tab.id}`}
+        hidden={i !== 0}
+        class="pricing__panel"
+        data-pricing-panel
+      >
+        <p class="pricing__note mono-micro">{tab.note}</p>
+
+        <ul class:list={['pricing__grid', `pricing__grid--${tab.columns}`]}>
+          {tab.packages.map((pkg) => (
+            <li class="package">
+              <div class="package__plate">
+                {pkg.popular && <span class="package__badge mono-micro">Terpopuler</span>}
+                <span class="mono-micro package__for">{pkg.forWho}</span>
+              </div>
+
+              <h3 class="package__name">{pkg.name}</h3>
+
+              <p class="package__price">
+                <span class="mono-micro">{showPrices && pkg.price.kind !== 'byScope' ? 'Mulai' : 'Harga'}</span>
+                <span class="package__figure">{formatPrice(pkg.price, showPrices)}</span>
+              </p>
+
+              <ul class="package__list">
+                {pkg.deliverables.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+
+              <p class="package__plate-line mono-micro">{pkg.revisions} · {pkg.timeline}</p>
+
+              <a
+                class="package__cta mono-label"
+                href={waLink}
+                rel="noopener noreferrer"
+                target="_blank"
+                data-source="pricing"
+              >
+                Diskusikan <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    <details class="addons" data-addons>
+      <summary class="addons__summary">
+        <span class="mono-label">Add-on</span>
+        <span class="mono-micro">{addons.length} tambahan yang bisa dipilih</span>
+      </summary>
+      <ul class="addons__list">
+        {addons.map((addon) => (
+          <li class="addons__row">
+            <span class="addons__label">{addon.label}</span>
+            <span class="addons__price mono-label">{formatPrice(addon.price, showPrices)}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+
+    <div class="maintenance">
+      <h3 class="mono-label">Perawatan bulanan</h3>
+      <ul class="maintenance__list">
+        {maintenancePlans.map((plan) => (
+          <li class="maintenance__row">
+            <span class="maintenance__name">{plan.name}</span>
+            <span class="mono-label">{formatPrice(plan.price, showPrices)}</span>
+            <span class="maintenance__includes">{plan.includes}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <p class="pricing__fineprint">{priceNote}</p>
+
+    <div class="pricing__actions">
+      {flags.SHOW_PRICELIST_PDF && showPrices && (
+        <a class="btn btn--ghost" href={withBase('/price-list-bima-abiyasa-2026.pdf')} download data-source="pricing">
+          <span class="btn__inner">Unduh price list (PDF)</span>
+        </a>
+      )}
+      <a class="btn btn--primary" href={waLink} rel="noopener noreferrer" target="_blank" data-source="pricing">
+        <span class="btn__inner"><span class="btn-dot" aria-hidden="true"></span>Diskusikan kebutuhan</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '@/scripts/pricing';
+</script>
+
+<style>
+  .pricing {
+    border-top: var(--border-hairline);
+  }
+
+  .pricing__head {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-6);
+  }
+
+  .pricing__eyebrow {
+    color: var(--color-gold);
+  }
+
+  .pricing__intro h2 {
+    font-size: var(--fs-display-l);
+    line-height: var(--lh-display-l);
+    letter-spacing: var(--track-display-l);
+  }
+
+  .pricing__intro p {
+    margin-top: var(--space-5);
+    color: var(--color-text-2);
+  }
+
+  .pricing__tabs {
+    display: inline-flex;
+    gap: var(--space-1);
+    margin-top: var(--space-9);
+    padding: var(--space-1);
+    border: var(--border-hairline);
+    border-radius: var(--r-pill);
+    background: var(--color-surface-1);
+  }
+
+  .pricing__tab {
+    min-height: 40px;
+    padding-inline: var(--space-6);
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--color-text-muted-hi);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-2) var(--ease-in-out-quart),
+      color var(--dur-2) var(--ease-in-out-quart);
+  }
+
+  .pricing__tab[aria-selected='true'] {
+    background: rgb(200 169 108 / 12%);
+    color: var(--color-text);
+    box-shadow: inset 0 0 0 1px var(--color-line-gold);
+  }
+
+  .pricing__tab:hover {
+    color: var(--color-text);
+  }
+
+  .pricing__panel {
+    margin-top: var(--space-7);
+  }
+
+  .pricing__note {
+    margin-bottom: var(--space-6);
+    color: var(--color-text-muted);
+  }
+
+  .pricing__grid {
+    display: grid;
+    gap: var(--grid-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pricing__grid--3 {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .pricing__grid--2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .package {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto auto;
+    gap: var(--space-4);
+    padding: clamp(var(--space-6), 2.5vw, var(--space-8));
+    border: var(--border-hairline);
+    border-radius: var(--r-md);
+    background: var(--color-surface-1);
+  }
+
+  .package__plate {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .package__badge {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-gold);
+    border-radius: var(--r-pill);
+    color: var(--color-gold);
+  }
+
+  .package__for {
+    color: var(--color-text-muted-hi);
+  }
+
+  .package__name {
+    font-size: var(--fs-h3);
+  }
+
+  .package__price {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-4);
+    border-block: var(--border-hairline);
+  }
+
+  .package__price .mono-micro {
+    color: var(--color-text-muted);
+  }
+
+  .package__figure {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: var(--fs-display-m);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-gold-bright);
+  }
+
+  .package__list {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .package__list li {
+    position: relative;
+    padding-left: var(--space-5);
+    color: var(--color-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .package__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 12px;
+    height: 1px;
+    background: var(--color-line-gold);
+  }
+
+  .package__plate-line {
+    color: var(--color-text-muted);
+  }
+
+  .package__cta {
+    justify-self: start;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-line-gold);
+    padding-bottom: 2px;
+  }
+
+  .package__cta:hover {
+    color: var(--color-gold-bright);
+  }
+
+  .addons {
+    margin-top: var(--space-11);
+    border: var(--border-hairline);
+    border-radius: var(--r-md);
+    background: var(--color-surface-1);
+  }
+
+  .addons__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--space-6) clamp(var(--space-6), 3vw, var(--space-9));
+    cursor: pointer;
+    list-style: none;
+    min-height: 44px;
+  }
+
+  .addons__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .addons__summary .mono-label {
+    color: var(--color-gold);
+  }
+
+  .addons__summary .mono-micro {
+    color: var(--color-text-muted);
+  }
+
+  .addons__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 0 var(--space-9);
+    margin: 0;
+    padding: 0 clamp(var(--space-6), 3vw, var(--space-9)) var(--space-7);
+    list-style: none;
+  }
+
+  .addons__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-block: var(--space-3);
+    border-top: var(--border-hairline);
+  }
+
+  .addons__label {
+    color: var(--color-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .addons__price {
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  .maintenance {
+    margin-top: var(--space-9);
+  }
+
+  .maintenance h3 {
+    color: var(--color-gold);
+  }
+
+  .maintenance__list {
+    display: grid;
+    gap: 0;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--border-hairline);
+  }
+
+  .maintenance__row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 6fr);
+    gap: var(--space-4);
+    align-items: baseline;
+    padding-block: var(--space-4);
+    border-bottom: var(--border-hairline);
+  }
+
+  .maintenance__name {
+    font-size: var(--fs-h3);
+  }
+
+  .maintenance__includes {
+    color: var(--color-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .pricing__fineprint {
+    margin-top: var(--space-8);
+    max-width: var(--measure-prose);
+    color: var(--color-text-muted-hi);
+    font-size: var(--fs-small);
+  }
+
+  .pricing__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  @media (max-width: 1023px) {
+    .pricing__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .maintenance__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
+  }
+</style>

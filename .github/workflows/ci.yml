@@ -42,6 +42,9 @@ jobs:
       - name: Budget check (initial JS/CSS/HTML)
         run: npm run budget
 
+      - name: Price list PDF is in sync with the pricing config
+        run: npm run price-list:check
+
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:

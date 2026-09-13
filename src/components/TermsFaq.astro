@@ -1,0 +1,177 @@
+---
+/**
+ * Terms + FAQ (brief §6/08, §5.8).
+ *
+ * Terms render from config and nothing here restates a commitment by hand: the questions,
+ * the answers and the warranty phrasing come from src/config/terms.ts and faq.ts, which is
+ * what makes "the FAQ matches the terms" testable rather than a promise.
+ */
+import { terms } from '@/config/terms';
+import { faq } from '@/config/faq';
+---
+<section class="terms section" id="ketentuan" aria-labelledby="ketentuan-title">
+  <header class="terms__head container-page">
+    <p class="mono-label terms__eyebrow">07 / KETENTUAN</p>
+    <div class="terms__intro">
+      <h2 id="ketentuan-title">
+        Ketentuan dan <span class="accent-serif">pertanyaan</span> umum.
+      </h2>
+    </div>
+  </header>
+
+  <div class="terms__body container-page">
+    <div class="terms__accordion" data-accordion id="faq">
+      <h3 class="visually-hidden">Ketentuan proyek</h3>
+      {terms.map((term) => (
+        <details class="term" data-term>
+          <summary class="term__summary">
+            <span class="term__question">{term.question}</span>
+            <span class="term__glyph" aria-hidden="true"></span>
+          </summary>
+          <p class="term__answer">{term.answer}</p>
+        </details>
+      ))}
+    </div>
+
+    <div class="terms__faq">
+      <h3 class="visually-hidden">Pertanyaan yang sering diajukan</h3>
+      <ul class="faq">
+        {faq.map((item) => (
+          <li class="faq__item">
+            <h4 class="faq__question">{item.question}</h4>
+            <p class="faq__answer">{item.answer}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '@/scripts/accordion';
+</script>
+
+<style>
+  .terms {
+    border-top: var(--border-hairline);
+  }
+
+  .terms__head {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-6);
+  }
+
+  .terms__eyebrow {
+    color: var(--color-gold);
+  }
+
+  .terms__intro h2 {
+    font-size: var(--fs-display-l);
+    line-height: var(--lh-display-l);
+    letter-spacing: var(--track-display-l);
+    max-width: 24ch;
+  }
+
+  .terms__body {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-10);
+    margin-top: var(--space-11);
+  }
+
+  .terms__accordion {
+    border-top: var(--border-hairline);
+  }
+
+  .term {
+    border-bottom: var(--border-hairline);
+  }
+
+  .term__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-block: var(--space-5);
+    cursor: pointer;
+    list-style: none;
+    min-height: 44px;
+  }
+
+  .term__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .term__question {
+    font-size: var(--fs-h3);
+    letter-spacing: var(--track-heading);
+    color: var(--color-text);
+  }
+
+  /* Drawn glyph: a plus that becomes a minus, without a font icon or an emoji. */
+  .term__glyph {
+    position: relative;
+    flex: none;
+    width: 14px;
+    height: 14px;
+  }
+
+  .term__glyph::before,
+  .term__glyph::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 1px;
+    background: var(--color-gold);
+    transition: transform var(--dur-2) var(--ease-in-out-quart);
+  }
+
+  .term__glyph::after {
+    transform: rotate(90deg);
+  }
+
+  .term[open] .term__glyph::after {
+    transform: rotate(0deg);
+  }
+
+  .term__answer {
+    padding-bottom: var(--space-6);
+    max-width: var(--measure-prose);
+    color: var(--color-text-2);
+  }
+
+  .faq {
+    display: grid;
+    gap: var(--gap, var(--grid-gap));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .faq__item {
+    padding: var(--space-6);
+    border: var(--border-hairline);
+    border-radius: var(--r-md);
+    background: var(--color-surface-1);
+  }
+
+  .faq__question {
+    font-size: var(--fs-body-l);
+    color: var(--color-text);
+  }
+
+  .faq__answer {
+    margin-top: var(--space-4);
+    color: var(--color-text-2);
+    font-size: var(--fs-body);
+  }
+
+  @media (max-width: 1023px) {
+    .terms__head,
+    .terms__body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
