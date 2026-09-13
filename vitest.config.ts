@@ -10,6 +10,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    // Playwright owns tests/e2e — vitest only runs the unit suites.
     include: ['tests/unit/**/*.test.ts'],
     coverage: {
       provider: 'v8',

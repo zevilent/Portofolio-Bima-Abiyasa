@@ -1,0 +1,329 @@
+---
+/**
+ * Header (brief §5.1): 72px desktop / 64px mobile, hairline rule that only appears once
+ * the page has scrolled, hides on scroll-down and returns on scroll-up.
+ * On mobile the nav collapses into a full-screen overlay with staggered links.
+ */
+import { site } from '@/config/site';
+import { primaryNav, ctaNav } from '@/config/nav';
+import AvailabilityPill from './AvailabilityPill.astro';
+import { withBase } from '@/lib/url';
+import { consultWhatsappUrl } from '@/lib/whatsapp';
+
+const waLink = consultWhatsappUrl(site.contact.whatsapp);
+---
+<header class="site-header" data-header>
+  <div class="site-header__inner container-page">
+    <a class="site-header__brand" href={withBase('/')} aria-label={`${site.name} — beranda`}>
+      <span class="site-header__monogram" aria-hidden="true">{site.initials}</span>
+      <span class="site-header__name">{site.name}</span>
+    </a>
+
+    <nav class="site-header__nav" aria-label="Navigasi utama">
+      <ul>
+        {primaryNav.map((item) => (
+          <li>
+            <a class="nav-link mono-label" href={`${withBase('/')}${item.href}`}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <span class="site-header__pill">
+        <AvailabilityPill />
+      </span>
+
+      <a
+        class="site-header__cta btn btn--ghost js-magnetic"
+        data-magnetic
+        data-source="header"
+        href={waLink}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <span class="btn__inner">{ctaNav.label}</span>
+      </a>
+
+      <button
+        class="site-header__menu mono-label"
+        type="button"
+        data-menu-open
+        aria-expanded="false"
+        aria-controls="menu-mobile"
+      >
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="menu-overlay" id="menu-mobile" data-menu-overlay hidden>
+  <div class="menu-overlay__top container-page">
+    <span class="mono-label">{site.locationShort}</span>
+    <button class="menu-overlay__close mono-label" type="button" data-menu-close>Tutup</button>
+  </div>
+
+  <nav class="menu-overlay__nav container-page" aria-label="Navigasi seluler">
+    <ul>
+      {primaryNav.map((item, index) => (
+        <li style={`--i:${index}`}>
+          <a href={`${withBase('/')}${item.href}`}>
+            <span class="menu-overlay__index mono-micro">{String(index + 1).padStart(2, '0')}</span>
+            {item.label}
+          </a>
+        </li>
+      ))}
+      <li style={`--i:${primaryNav.length}`}>
+        <a href={waLink} rel="noopener noreferrer" target="_blank" data-source="mobile-menu">
+          <span class="menu-overlay__index mono-micro">{String(primaryNav.length + 1).padStart(2, '0')}</span>
+          Diskusikan proyek
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="menu-overlay__foot container-page">
+    <a class="mono-label" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+    <span class="mono-label">WhatsApp {site.contact.whatsappDisplay}</span>
+  </div>
+</div>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: var(--z-header);
+    height: var(--header-h);
+    transform: translate3d(0, 0, 0);
+    transition:
+      transform var(--dur-3) var(--ease-out-quint),
+      background-color var(--dur-3) var(--ease-out-quint),
+      border-color var(--dur-3) var(--ease-out-quint);
+    border-bottom: 1px solid transparent;
+  }
+
+  /* Scrolled: hairline appears and the canvas gets a near-opaque backing (no blur). */
+  .site-header[data-scrolled] {
+    background-color: rgb(10 10 11 / 92%);
+    border-bottom-color: var(--color-line);
+  }
+
+  .site-header[data-hidden] {
+    transform: translate3d(0, -100%, 0);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    height: 100%;
+  }
+
+  .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+  }
+
+  .site-header__monogram {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: var(--border-gold);
+    border-radius: var(--r-xs);
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: var(--fs-mono);
+    letter-spacing: 0.08em;
+    color: var(--color-text);
+  }
+
+  .site-header__name {
+    font-size: var(--fs-small);
+    letter-spacing: -0.01em;
+    color: var(--color-text-2);
+  }
+
+  .site-header__nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-7);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-link {
+    position: relative;
+    text-decoration: none;
+    padding-block: var(--space-2);
+    transition: color var(--dur-2) var(--ease-out-quint);
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-2) var(--ease-out-quint);
+  }
+
+  .nav-link:hover {
+    color: var(--color-text);
+  }
+
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .site-header__menu {
+    display: none;
+    min-height: 44px;
+    padding-inline: var(--space-3);
+    border: var(--border-hairline);
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 1023px) {
+    .site-header__nav {
+      display: none;
+    }
+
+    .site-header__menu {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .site-header__name,
+    .site-header__cta,
+    .site-header__pill {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .site-header__menu {
+      display: none;
+    }
+  }
+
+  /* ---------- Overlay ---------- */
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background-color: var(--color-surface-1);
+    padding-block: var(--space-4) var(--space-8);
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out-quint);
+  }
+
+  .menu-overlay[hidden] {
+    display: none;
+  }
+
+  .menu-overlay[data-open] {
+    opacity: 1;
+  }
+
+  .menu-overlay__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--header-h-mobile);
+  }
+
+  .menu-overlay__close {
+    min-height: 44px;
+    padding-inline: var(--space-3);
+    border: var(--border-hairline);
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .menu-overlay__nav {
+    align-self: center;
+  }
+
+  .menu-overlay__nav ul {
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .menu-overlay__nav li {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  .menu-overlay[data-open] .menu-overlay__nav li {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-4) var(--ease-luxe),
+      transform var(--dur-4) var(--ease-luxe);
+    transition-delay: calc(var(--i) * var(--stagger-3));
+  }
+
+  .menu-overlay__nav a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    font-size: var(--fs-display-m);
+    line-height: var(--lh-display-m);
+    letter-spacing: var(--track-display-m);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .menu-overlay__index {
+    color: var(--color-gold);
+  }
+
+  .menu-overlay__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    justify-content: space-between;
+  }
+
+  .menu-overlay__foot a {
+    color: var(--color-text-2);
+    text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .menu-overlay,
+    .menu-overlay__nav li {
+      transition: none;
+      transform: none;
+      opacity: 1;
+    }
+  }
+</style>

@@ -1,0 +1,132 @@
+---
+/**
+ * MagneticButton — the site's one piece of physicality (brief §7 #11).
+ *
+ * Desktop + fine pointer + motion allowed only: touch and reduced-motion users get a
+ * plain button with the same look and behaviour. The pull is capped at 12px and the
+ * element springs back on leave. Anchor links and forms keep working unchanged.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { withBase } from '@/lib/url';
+
+export type Props = {
+  href?: string;
+  variant?: 'primary' | 'ghost' | 'quiet';
+  /** Analytics source label, e.g. 'hero' — read by the analytics layer in M6. */
+  source?: string;
+  type?: 'button' | 'submit';
+  class?: string;
+} & Omit<HTMLAttributes<'a'>, 'href' | 'class'>;
+
+const {
+  href,
+  variant = 'primary',
+  source,
+  type = 'button',
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const isExternal = href?.startsWith('http');
+const resolvedHref = href && !isExternal ? withBase(href) : href;
+const tag = href ? 'a' : 'button';
+---
+<>
+  {tag === 'a' ? (
+    <a
+      href={resolvedHref}
+      class:list={['btn', `btn--${variant}`, 'js-magnetic', className]}
+      data-magnetic
+      data-source={source}
+      {...(isExternal ? { rel: 'noopener noreferrer', target: '_blank' } : {})}
+      {...rest}
+    >
+      <span class="btn__inner"><slot /></span>
+    </a>
+  ) : (
+    <button
+      type={type}
+      class:list={['btn', `btn--${variant}`, 'js-magnetic', className]}
+      data-magnetic
+      data-source={source}
+      {...rest}
+    >
+      <span class="btn__inner"><slot /></span>
+    </button>
+  )}
+</>
+
+<style>
+  .btn {
+    --pull-x: 0px;
+    --pull-y: 0px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: var(--space-3) var(--space-6);
+    border: var(--border-hairline);
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--color-text);
+    font-family: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, monospace;
+    font-size: var(--fs-mono);
+    letter-spacing: var(--track-mono);
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transform: translate3d(var(--pull-x), var(--pull-y), 0);
+    transition:
+      transform var(--dur-3) var(--ease-spring),
+      border-color var(--dur-2) var(--ease-out-quint),
+      background-color var(--dur-2) var(--ease-out-quint);
+  }
+
+  .btn__inner {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .btn--primary {
+    border-color: var(--color-line-gold);
+    background: rgb(200 169 108 / 8%);
+  }
+
+  .btn--primary:hover {
+    border-color: var(--color-gold);
+    background: rgb(200 169 108 / 14%);
+  }
+
+  .btn--ghost:hover {
+    border-color: var(--color-line-strong);
+  }
+
+  .btn--quiet {
+    padding-inline: var(--space-4);
+    border-color: transparent;
+    color: var(--color-text-2);
+  }
+
+  .btn--quiet:hover {
+    color: var(--color-text);
+    border-color: var(--color-line);
+  }
+
+  /* The live dot for WhatsApp CTAs. */
+  .btn :global(.btn-dot) {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--r-pill);
+    background: var(--color-ember);
+    box-shadow: var(--glow-ember);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transform: none;
+    }
+  }
+</style>

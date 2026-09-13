@@ -1,0 +1,118 @@
+---
+/**
+ * CapabilityMarquee (brief §6/03): a slow band of the capabilities and tools Bima
+ * actually uses. Only confirmed entries render — an unverified technology in a marquee
+ * would be a claim the site cannot back up.
+ *
+ * Reduced motion: the duplicate track is hidden and the list wraps as static text.
+ */
+import { confirmedCapabilities } from '@/config/capabilities';
+
+const items = confirmedCapabilities;
+// Two identical tracks; the second is aria-hidden so screen readers read the list once.
+---
+<section class="marquee" data-marquee aria-labelledby="marquee-title">
+  <h2 class="visually-hidden" id="marquee-title">Kapabilitas dan teknologi</h2>
+
+  <div class="marquee__viewport">
+    <div class="marquee__track" data-marquee-track>
+      <ul class="marquee__list">
+        {items.map((item) => (
+          <li class="marquee__item mono-label">
+            <span class="marquee__rule" aria-hidden="true"></span>
+            {item.label}
+          </li>
+        ))}
+      </ul>
+      <ul class="marquee__list marquee__list--clone" aria-hidden="true">
+        {items.map((item) => (
+          <li class="marquee__item mono-label">
+            <span class="marquee__rule" aria-hidden="true"></span>
+            {item.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .marquee {
+    position: relative;
+    border-block: var(--border-hairline);
+    /* The whole band is decoration around real information, so it never traps focus. */
+    overflow: hidden;
+  }
+
+  .marquee__viewport {
+    overflow: hidden;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-drift 60s linear infinite;
+  }
+
+  .marquee:hover .marquee__track,
+  .marquee:focus-within .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__list {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-7) var(--space-7);
+    color: var(--color-text-muted-hi);
+    white-space: nowrap;
+  }
+
+  .marquee__rule {
+    width: 18px;
+    height: 1px;
+    background: var(--color-line-gold);
+  }
+
+  @keyframes marquee-drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .marquee__item {
+      padding: var(--space-5) var(--space-5);
+    }
+
+    .marquee__track {
+      animation-duration: 45s;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+      width: 100%;
+    }
+
+    .marquee__list {
+      flex-wrap: wrap;
+    }
+
+    .marquee__list--clone {
+      display: none;
+    }
+  }
+</style>

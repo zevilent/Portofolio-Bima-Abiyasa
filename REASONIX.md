@@ -98,3 +98,15 @@ cara preview lokal → update checklist → commit → **STOP, tunggu approval B
 - Langkah yang hanya bisa dilakukan Bima (buat repo, aktifkan Pages, setelan, custom domain):
   berikan panduan klik-demi-klik, jangan diasumsikan selesai.
 - Kerjaan sementara (scratch, probe, output generate) jangan ditinggal di repo.
+
+## Catatan teknis penting (jangan diulang tanpa alasan)
+
+- **Lifecycle motion**: `src/scripts/motion.ts` adalah satu-satunya pemilik Lenis, GSAP, dan
+  urutan boot. Aturan yang sudah teruji: (1) halaman mengambil "ownership" dokumen lewat
+  `astro:page-load`, (2) event duplikat untuk halaman yang sama **tidak** memicu teardown,
+  (3) teardown tidak pernah dijalankan spekulatif, (4) snapshot daftar teardown sebelum
+  dijalankan supaya pekerjaan yang baru didaftarkan di dalamnya tetap hidup.
+- **Shader**: vertex shader wajib memakai `precision mediump float` yang sama dengan fragment
+  shader, kalau tidak program gagal `VALIDATE_STATUS` dan kanvas kosong tanpa error JS.
+- **Test yang menjaga**: `tests/e2e/webgl.spec.ts` (satu kanvas, event duplikat, navigasi
+  bolak-balik, reduced motion) dan `tests/unit/*` (kontras AA, kejujuran data, format harga).

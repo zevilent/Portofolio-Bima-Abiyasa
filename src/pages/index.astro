@@ -1,39 +1,52 @@
 ---
 /**
- * Home — M1 placeholder. The real sections (hero, WebGL, works, services, process,
- * pricing, terms, CTA, footer) are built in M2–M5. This page exists so the M1 gate
- * has a real document to build, deploy and audit: correct head, landmarks, and the
- * site's typography actually rendered with the real tokens.
+ * Home — M2 vertical slice: header, hero (split-text + agent terminal + WebGL),
+ * capability marquee. Later milestones append their sections to this page in place.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/Hero.astro';
+import CapabilityMarquee from '@/components/CapabilityMarquee.astro';
 import { site } from '@/config/site';
-import { worksSorted } from '@/config/works';
-import { GUARANTEE_DAYS } from '@/config/terms';
-
-const [taglineLead = site.tagline, taglineRest = ''] = site.tagline.split('smarter');
 ---
 <BaseLayout>
-  <section class="section container-page">
-    <p class="mono-micro">00 / FONDASI</p>
-    <h1 style="font-size: var(--fs-display-l); line-height: var(--lh-display-l); letter-spacing: var(--track-display-l); margin-top: var(--space-6);">
-      {taglineLead}
-      <span class="accent-serif">smarter</span>{taglineRest}
-    </h1>
-    <p style="font-size: var(--fs-body-l); color: var(--color-text-2); margin-top: var(--space-6);">
-      {site.oneLiner}
+  <Hero />
+  <CapabilityMarquee />
+
+  <section class="container-page placeholder" id="karya">
+    <p class="mono-label">M2 / SELANJUTNYA</p>
+    <h2>Karya, layanan, proses, harga, dan FAQ menyusul di milestone berikutnya.</h2>
+    <p>
+      Halaman ini sudah memakai fondasi final: token, tipografi, jarak, gerak, dan
+      komponen header/hero yang akan dipakai seluruh situs.
     </p>
+    <p class="mono-micro">{site.liveUrl}</p>
   </section>
 
-  <section class="section container-page" style="border-top: var(--border-hairline);">
-    <p class="mono-label">M1 / STATUS</p>
-    <h2 style="font-size: var(--fs-display-m); line-height: var(--lh-display-m); margin-top: var(--space-4);">
-      Fondasi siap. Desain dimulai di M2.
-    </h2>
-    <ul style="margin-top: var(--space-8); display: grid; gap: var(--space-3); max-width: var(--measure-prose);">
-      <li>Astro 7 + TypeScript strict + Tailwind v4 dengan token dari brief.</li>
-      <li>Font self-hosted: Geist, Geist Mono, Instrument Serif italic.</li>
-      <li>Garansi bug {GUARANTEE_DAYS} — satu sumber, dipakai di pricing, FAQ, dan PDF.</li>
-      <li>{worksSorted.length} proyek siap ditulis sebagai studi kasus di M3.</li>
-    </ul>
-  </section>
+  <script>
+    import '@/scripts/hero-page';
+  </script>
 </BaseLayout>
+
+<style>
+  .placeholder {
+    padding-block: var(--section-block);
+    border-top: var(--border-hairline);
+  }
+
+  .placeholder h2 {
+    margin-top: var(--space-5);
+    font-size: var(--fs-display-m);
+    line-height: var(--lh-display-m);
+    letter-spacing: var(--track-display-m);
+    max-width: 26ch;
+  }
+
+  .placeholder p {
+    margin-top: var(--space-6);
+    color: var(--color-text-2);
+  }
+
+  .placeholder .mono-micro {
+    color: var(--color-text-muted);
+  }
+</style>

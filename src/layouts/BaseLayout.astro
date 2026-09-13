@@ -1,22 +1,22 @@
 ---
 /**
  * BaseLayout — the single document shell (brief §4, §9, §10.1).
- * M1 scope: correct head, landmarks, skip link, grain, header/footer placeholders.
- * Header, footer, consent bar and command palette arrive in M2/M5/M6 and slot in here.
+ * M2 adds the real header, the footer shell and the ClientRouter; the consent bar and
+ * command palette arrive in M6/M5 and slot into the same layout.
  */
 import '@/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import { site } from '@/config/site';
 import { flags } from '@/config/flags';
-import { availability } from '@/config/availability';
 import { withBase, absoluteUrl } from '@/lib/url';
+import Header from '@/components/Header.astro';
+import { primaryNav } from '@/config/nav';
 
 export type Props = {
-  /** Page title without the site suffix. Omit on the home page to use seo.homeTitle. */
   title?: string;
   description?: string;
   /** Path (unbased) used for canonical + og:url, e.g. '/karya/niaga-one'. */
   path?: string;
-  /** Keep the page out of the index (not used by any current page — indexing is ON). */
   noindex?: boolean;
 };
 
@@ -40,7 +40,6 @@ const canonical = absoluteUrl(path);
     <meta name="color-scheme" content="dark" />
     <meta name="author" content={site.name} />
 
-    <!-- Open Graph / Twitter. OG image endpoint lands in M6. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:locale" content="id_ID" />
@@ -51,10 +50,6 @@ const canonical = absoluteUrl(path);
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={metaDescription} />
 
-    <!--
-      Font preload: only the display face used above the fold (Geist). Mono and the
-      serif accent are not preloaded — they never render the LCP element (brief §8.2).
-    -->
     <link
       rel="preload"
       href={withBase('/fonts/geist-latin-var.woff2')}
@@ -66,31 +61,153 @@ const canonical = absoluteUrl(path);
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
     <link rel="manifest" href={withBase('/manifest.webmanifest')} />
+
+    <ClientRouter />
   </head>
 
   <body>
     <a class="skip-link" href="#konten">Lewati ke konten</a>
-    <header class="container-page" data-site-header>
-      <a href={withBase('/')} aria-label={`${site.name} — beranda`} class="mono-label">
-        {site.initials}
-      </a>
-      {flags.SHOW_AVAILABILITY && availability.enabled && (
-        <span class="mono-micro" data-availability>{availability.label}</span>
-      )}
-    </header>
+    <Header />
 
     <main id="konten" data-pagefind-body>
       <slot />
     </main>
 
-    <footer class="container-page" data-site-footer>
-      <p class="mono-micro">
-        © {new Date().getFullYear()}
-        {site.name}
-      </p>
-      <slot name="footer" />
+    <footer class="site-footer" data-site-footer>
+      <div class="container-page site-footer__inner">
+        <div class="site-footer__brand">
+          <span class="site-footer__monogram" aria-hidden="true">{site.initials}</span>
+          <p class="site-footer__identity">
+            {site.name} — {site.title}
+          </p>
+        </div>
+
+        <nav class="site-footer__nav" aria-label="Navigasi footer">
+          <ul>
+            {primaryNav.map((item) => (
+              <li>
+                <a class="mono-label" href={`${withBase('/')}${item.href}`}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div class="site-footer__contact">
+          <a class="mono-label" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+          <span class="mono-label">WhatsApp {site.contact.whatsappDisplay}</span>
+        </div>
+
+        <div class="site-footer__legal">
+          <p class="mono-micro">© {new Date().getFullYear()} {site.name}</p>
+          <a class="mono-micro" href={site.repoUrl} rel="noopener noreferrer" target="_blank">
+            Dibangun dengan AI agent, diarahkan oleh Bima ↗
+          </a>
+        </div>
+      </div>
     </footer>
 
     {flags.SHOW_GRAIN && <div class="grain" aria-hidden="true"></div>}
+
+    <script>
+      import '@/scripts/motion';
+    </script>
   </body>
 </html>
+
+<style>
+  .site-footer {
+    border-top: var(--border-hairline);
+    padding-block: var(--space-11);
+    margin-top: var(--space-12);
+  }
+
+  .site-footer__inner {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1.2fr;
+    gap: var(--space-9);
+    align-items: start;
+  }
+
+  .site-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .site-footer__monogram {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: var(--border-gold);
+    border-radius: var(--r-xs);
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: var(--fs-mono);
+    letter-spacing: 0.08em;
+  }
+
+  .site-footer__identity {
+    font-size: var(--fs-small);
+    color: var(--color-text-2);
+    max-width: 28ch;
+  }
+
+  .site-footer__nav ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__nav a,
+  .site-footer__contact a {
+    color: var(--color-text-muted-hi);
+    text-decoration: none;
+    transition: color var(--dur-2) var(--ease-out-quint);
+  }
+
+  .site-footer__nav a:hover,
+  .site-footer__contact a:hover {
+    color: var(--color-text);
+  }
+
+  .site-footer__contact {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+
+  .site-footer__legal {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-top: var(--space-7);
+    border-top: var(--border-hairline);
+  }
+
+  .site-footer__legal a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--dur-2) var(--ease-out-quint);
+  }
+
+  .site-footer__legal a:hover {
+    color: var(--color-gold);
+  }
+
+  @media (max-width: 1023px) {
+    .site-footer__inner {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .site-footer__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-7);
+    }
+  }
+</style>
